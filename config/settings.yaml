@@ -1,0 +1,7 @@
+# Defaults for the public JSONPlaceholder demo API. No credentials.
+# Override with environment variables or a local .env file (see .env.example).
+
+base_url: https://jsonplaceholder.typicode.com
+timeout_seconds: 10
+max_response_time_ms: 5000
+verify_ssl: true
