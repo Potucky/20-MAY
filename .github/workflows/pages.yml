@@ -1,0 +1,87 @@
+name: Publish test report
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+  actions: read
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Test and publish HTML report
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    env:
+      API_BASE_URL: https://jsonplaceholder.typicode.com
+      API_TIMEOUT_SECONDS: "10"
+      API_MAX_RESPONSE_TIME_MS: "5000"
+      API_VERIFY_SSL: "true"
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+
+      - name: Run tests
+        run: python -m pytest
+
+      - name: Prepare the Pages site
+        env:
+          PUBLISH_SHA: ${{ github.sha }}
+          REPO_URL: ${{ github.server_url }}/${{ github.repository }}
+        run: |
+          mkdir -p site
+          cp reports/report.html site/report.html
+          cat > site/index.html <<EOF
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <title>JSONPlaceholder API tests</title>
+            <style>
+              body { font-family: system-ui, sans-serif; margin: 2.5rem auto; max-width: 40rem; line-height: 1.5; color: #1a1a1a; }
+              a { color: #0b57d0; }
+              code { font-family: ui-monospace, monospace; }
+            </style>
+          </head>
+          <body>
+            <h1>JSONPlaceholder API tests</h1>
+            <p>Portfolio demo for QA Automation. This is not employer code. The report is from the pytest run on the latest push to <code>main</code>.</p>
+            <p><a href="report.html">Open the HTML test report</a></p>
+            <p>Commit <a href="${REPO_URL}/commit/${PUBLISH_SHA}"><code>${PUBLISH_SHA}</code></a></p>
+            <p><a href="${REPO_URL}">Source repository</a></p>
+          </body>
+          </html>
+          EOF
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

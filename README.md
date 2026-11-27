@@ -1,10 +1,20 @@
 # REST API testing with pytest
 
-[![API tests](https://github.com/Potucky/20-MAY/actions/workflows/api-tests.yml/badge.svg)](https://github.com/Potucky/20-MAY/actions/workflows/api-tests.yml)
+[![API tests](https://github.com/Potucky/rest-api-testing-pytest/actions/workflows/api-tests.yml/badge.svg)](https://github.com/Potucky/rest-api-testing-pytest/actions/workflows/api-tests.yml)
 
 Portfolio demo for QA Automation, SDET, and Data QA reviews. This is not employer code, and it does not test a private system. The live tests call the public [JSONPlaceholder](https://jsonplaceholder.typicode.com) API. That host needs no account and no credentials.
 
 The badge reflects the default branch after this workflow is on it.
+
+[Live test report](https://potucky.github.io/rest-api-testing-pytest/)
+
+## What this project demonstrates
+
+- **API contract and schema checks.** Live responses are validated with Draft 2020-12 JSON Schemas for post, comment, user, todo, and album, including nested objects, email format, and `additionalProperties: false`.
+- **Data validation.** Collections are checked for count, id range, and unique keys. User and todo rows are compared with the YAML reference files in `tests/data/`.
+- **Cross-route reconciliation.** A nested route must equal the filtered collection: `/users/1/posts` and `/posts?userId=1`, `/posts/1/comments` and `/comments?postId=1`, plus the album and todo nested routes.
+- **Negative checks.** Unknown ids, an empty filter, `TRACE` (405), and malformed JSON (500 on this host) are asserted as this API actually behaves.
+- **CI test reports.** GitHub Actions runs the suite and uploads the HTML report, JUnit XML, and coverage XML. A push to `main` publishes the HTML report.
 
 ## What it demonstrates
 
@@ -41,7 +51,9 @@ schemas/                      Draft 2020-12 schemas for post, comment, user, tod
 tests/api/                    live contract and data checks
 tests/unit/                   no network
 tests/data/                   reference rows for parametrized checks
+docs/pytest-report.png        screenshot of a local HTML report
 .github/workflows/api-tests.yml
+.github/workflows/pages.yml   HTML report published on push to main
 ```
 
 ## Run locally
@@ -97,6 +109,8 @@ GET, HEAD, and OPTIONS retry up to two times on connection and read errors. POST
 
 The workflow sets the public base URL in the environment. It does not use repository secrets.
 
+[`.github/workflows/pages.yml`](.github/workflows/pages.yml) runs on push to `main`. It runs the same suite, then publishes `reports/report.html` and an `index.html` that links to it, using `actions/upload-pages-artifact` and `actions/deploy-pages`. That site is the [live test report](https://potucky.github.io/rest-api-testing-pytest/). It is served after the repository setting Pages → Source is GitHub Actions. This workflow does not use repository secrets.
+
 ## Test approach
 
 88 tests: 43 offline `unit`, 4 `smoke`, 32 `regression`, 9 `negative`. Each test has one of those markers.
@@ -140,6 +154,10 @@ Coverage in the sample below is line and branch coverage of `src/api_client` onl
 
 ## Sample output
 
+HTML report from a local `pytest` run (`reports/report.html`):
+
+![pytest-html report from a local run: JSONPlaceholder API tests, 88 passed, target https://jsonplaceholder.typicode.com](docs/pytest-report.png)
+
 Local run from the repository root:
 
 ```text
@@ -180,4 +198,8 @@ Opening of `reports/junit.xml` from that run:
 </testsuite>
 ```
 
-`reports/report.html` is a self-contained pytest-html report titled "JSONPlaceholder API tests". The environment block records the Python version, the project name, and the target URL. Open that file in a browser after a local run, or download the `api-test-report` artifact from a GitHub Actions run.
+`reports/report.html` is a self-contained pytest-html report titled "JSONPlaceholder API tests". The environment block records the Python version, the project name, and the target URL. Open that file in a browser after a local run, download the `api-test-report` artifact from a GitHub Actions run, or use the [live test report](https://potucky.github.io/rest-api-testing-pytest/) after a push to `main`.
+
+## Author
+
+Vasyl Popovich, QA Automation Engineer, Miami, FL. GitHub: https://github.com/Potucky
