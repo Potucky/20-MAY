@@ -1,0 +1,26 @@
+# Known rows in the public todo fixture. completed is a real boolean in the YAML.
+- user_id: 1
+  completed: true
+  count: 11
+  known_id: 4
+  known_title: et porro tempora
+- user_id: 1
+  completed: false
+  count: 9
+  known_id: 1
+  known_title: delectus aut autem
+- user_id: 2
+  completed: true
+  count: 8
+  known_id: 22
+  known_title: distinctio vitae autem nihil ut molestias quo
+- user_id: 2
+  completed: false
+  count: 12
+  known_id: 21
+  known_title: suscipit repellat esse quibusdam voluptatem incidunt
+- user_id: 5
+  completed: false
+  count: 8
+  known_id: 82
+  known_title: voluptates eum voluptas et dicta

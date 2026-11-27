@@ -1,0 +1,31 @@
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+pythonpath = ["src", "tests"]
+addopts = [
+    "-ra",
+    "--strict-markers",
+    "--strict-config",
+    "--html=reports/report.html",
+    "--self-contained-html",
+    "--junitxml=reports/junit.xml",
+    "--cov=api_client",
+    "--cov-report=term-missing",
+    "--cov-report=xml:reports/coverage.xml",
+]
+markers = [
+    "unit: no network; safe to run offline",
+    "smoke: short critical-path checks",
+    "regression: broader contract and data checks",
+    "negative: expected error responses and rejected input",
+]
+log_level = "INFO"
+log_format = "%(levelname)s %(name)s: %(message)s"
+
+[tool.coverage.run]
+source = ["api_client"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+skip_empty = true
